@@ -1,0 +1,350 @@
+{
+  "nodes": [
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "description": "Run SQL over the tables wired in, as the views `a`, `b` and `c`; a query needs none (`SELECT * FROM range(10)`).\nGives the result as a table, as rows (a header row first), and as its first value: end with\n`SELECT json_object('rows', \u2026)` or `struct_pack(\u2026)` to make a JSON object.",
+      "display": "SQL Query",
+      "family": "duckdb",
+      "id": "duckdb.query",
+      "inputs": [
+        {
+          "default": "SELECT 42 AS answer",
+          "label": "SQL",
+          "name": "sql",
+          "tooltip": "Tables wired in are the views a, b and c",
+          "type": "STRING",
+          "widget": "multiline"
+        },
+        {
+          "name": "a",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "name": "b",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "name": "c",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "table",
+          "type": "TABLE"
+        },
+        {
+          "name": "rows",
+          "type": "JSON"
+        },
+        {
+          "name": "value",
+          "type": "JSON"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "description": "A picture drawn from data: SQL whose first value is an SVG document, over the tables wired in (`a`, `b`, `c`) and an\nSVG template (the view `template`, column `svg`). Fill a template with `replace`, and draw one shape per row with\n`string_agg(printf('<rect x=\"%d\" width=\"%.1f\" \u2026/>', \u2026), '')`.",
+      "display": "SQL to SVG",
+      "family": "duckdb",
+      "id": "duckdb.query_svg",
+      "inputs": [
+        {
+          "default": "SELECT replace(svg, '{{text}}', 'a corgi naps') FROM template",
+          "label": "SQL",
+          "name": "sql",
+          "tooltip": "Its first value is the SVG document. The template is the view template (svg)",
+          "type": "STRING",
+          "widget": "multiline"
+        },
+        {
+          "default": "",
+          "name": "template",
+          "path": {
+            "filters": [
+              {
+                "extensions": [
+                  "svg"
+                ],
+                "name": "SVG"
+              }
+            ],
+            "mode": "open"
+          },
+          "tooltip": "An SVG to fill in: the view template, one row, column svg",
+          "type": "STRING"
+        },
+        {
+          "name": "a",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "name": "b",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "name": "c",
+          "optional": true,
+          "socket": "socket",
+          "type": "TABLE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "svg",
+          "type": "SVG"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "description": "Read a CSV, JSON, Parquet or Excel file and run SQL on it, as the view `file`. Nested JSON keeps its structure, so\n`unnest(list, recursive := true)` and `unpivot` can flatten it here. Gives the result as a table, as rows (a header row\nfirst), and as its first value.",
+      "display": "Read File",
+      "family": "duckdb",
+      "id": "duckdb.read",
+      "inputs": [
+        {
+          "default": "",
+          "name": "path",
+          "path": {
+            "filters": [
+              {
+                "extensions": [
+                  "csv",
+                  "tsv",
+                  "json",
+                  "jsonl",
+                  "ndjson",
+                  "parquet",
+                  "xlsx"
+                ],
+                "name": "Data"
+              }
+            ],
+            "mode": "open"
+          },
+          "tooltip": "A CSV, JSON, Parquet or Excel file",
+          "type": "STRING"
+        },
+        {
+          "choices": [
+            "auto",
+            "csv",
+            "json",
+            "parquet",
+            "xlsx"
+          ],
+          "default": "auto",
+          "name": "format",
+          "tooltip": "auto: from the file's extension",
+          "type": "ENUM"
+        },
+        {
+          "default": "SELECT * FROM file",
+          "label": "SQL",
+          "name": "sql",
+          "tooltip": "Runs on the view file; unnest flattens nested JSON",
+          "type": "STRING",
+          "widget": "multiline"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "table",
+          "type": "TABLE"
+        },
+        {
+          "name": "rows",
+          "type": "JSON"
+        },
+        {
+          "name": "value",
+          "type": "JSON"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "converts": {
+        "from": "JSON",
+        "input": "rows",
+        "lossless": true,
+        "output": "table",
+        "to": "TABLE"
+      },
+      "description": "Rows (a list of lists, as GridCraft's Read range gives) as a table, the first row naming the columns when `header` is\non. Each column's type comes from its values. The inverse of Table to Rows.",
+      "display": "Rows to Table",
+      "family": "duckdb",
+      "id": "duckdb.rows_table",
+      "inputs": [
+        {
+          "name": "rows",
+          "socket": "socket",
+          "type": "JSON"
+        },
+        {
+          "default": true,
+          "name": "header",
+          "type": "BOOL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "table",
+          "type": "TABLE"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB",
+        "Testing"
+      ],
+      "description": "Passes a table through after `seconds`, reporting progress and stopping on cancel: how a long node behaves.",
+      "display": "Slow",
+      "family": "duckdb",
+      "id": "duckdb.slow",
+      "inputs": [
+        {
+          "name": "table",
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "default": 0.05,
+          "max": 600.0,
+          "min": 0.0,
+          "name": "seconds",
+          "type": "FLOAT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "table",
+          "type": "TABLE"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "converts": {
+        "from": "TABLE",
+        "input": "table",
+        "output": "text",
+        "to": "TEXT"
+      },
+      "description": "A table as CSV text, a header line first. Nested values are written as JSON.",
+      "display": "Table to CSV",
+      "family": "duckdb",
+      "id": "duckdb.table_csv",
+      "inputs": [
+        {
+          "name": "table",
+          "socket": "socket",
+          "type": "TABLE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "TEXT"
+        }
+      ]
+    },
+    {
+      "category": [
+        "DuckDB"
+      ],
+      "converts": {
+        "from": "TABLE",
+        "input": "table",
+        "lossless": true,
+        "output": "rows",
+        "to": "JSON"
+      },
+      "description": "A table as rows: one list per row, the column names first when `header` is on. What GridCraft's Write range takes.\nThe inverse of Rows to Table.",
+      "display": "Table to Rows",
+      "family": "duckdb",
+      "id": "duckdb.table_rows",
+      "inputs": [
+        {
+          "name": "table",
+          "socket": "socket",
+          "type": "TABLE"
+        },
+        {
+          "default": true,
+          "name": "header",
+          "type": "BOOL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "rows",
+          "type": "JSON"
+        }
+      ]
+    }
+  ],
+  "wire_types": [
+    {
+      "id": "STRING",
+      "media": "scalar"
+    },
+    {
+      "id": "ENUM",
+      "media": "scalar"
+    },
+    {
+      "color": "#4f86c6",
+      "id": "TABLE",
+      "media": "table"
+    },
+    {
+      "color": "#64748b",
+      "id": "JSON",
+      "media": "tree"
+    },
+    {
+      "color": "#16a34a",
+      "id": "SVG",
+      "media": "vector",
+      "thumb": true
+    },
+    {
+      "id": "BOOL",
+      "media": "scalar"
+    },
+    {
+      "color": "#c9a227",
+      "id": "TEXT",
+      "media": "text",
+      "thumb": true
+    },
+    {
+      "id": "FLOAT",
+      "media": "scalar"
+    }
+  ]
+}

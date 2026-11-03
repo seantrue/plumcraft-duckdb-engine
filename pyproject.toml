@@ -1,0 +1,52 @@
+[project]
+name = "duckdb-engine"
+version = "0.1.0"
+description = "DuckDB: a PlumCraft engine"
+requires-python = ">=3.12"
+license = "MIT OR Apache-2.0"
+dependencies = [
+    "duckdb>=2.0.0",
+    "plumcraft-engine>=0.1,<0.2",
+    "pytz>=2026.6",
+]
+
+[project.scripts]
+duckdb-engine = "plumcraft_duckdb.__main__:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+# Where the PlumCraft SDK comes from; README.md says how to switch.
+[tool.uv.sources]
+plumcraft-engine = { git = "https://github.com/seantrue/plumcraft", subdirectory = "python", rev = "3995cb7a8a0bbcb564ad3bd556dc6c0d2e500395" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plumcraft_duckdb"]
+
+# the demo and what it reads go in the wheel, for `duckdb-engine register`
+[tool.hatch.build.targets.wheel.force-include]
+"examples" = "plumcraft_duckdb/examples"
+
+[tool.ruff]
+line-length = 160
+src = ["src"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+# What `plumcraft-engine nodes`, `run` and `check` use here.
+[tool.plumcraft]
+engine = "plumcraft_duckdb:DuckdbEngine"
+demo = "examples/demo.json"
+
+[tool.plumcraft.conformance]
+slow = "duckdb.slow"

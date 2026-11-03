@@ -1,0 +1,6 @@
+service,kind,owner
+web,http,ops
+mail,smtp,ops
+photos,http,family
+backups,job,ops
+printer,ipp,nobody

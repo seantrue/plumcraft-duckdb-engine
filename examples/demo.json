@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "meta": {"title": "Is the internet slow after dinner?", "about": "A week of hourly speed tests, read from columnar JSON, flattened, averaged by hour of day and by day, with a one-line verdict as a JSON object."},
+  "nodes": {
+    "tests": {"kind": "duckdb.read", "title": "Speed tests", "pos": [0, 0], "values": {
+      "path": "data/speedtest.json",
+      "sql": "SELECT to_timestamp(unnest(t)) AS taken, unnest(down) AS down, unnest(up) AS up, unnest(ping) AS ping, unnest(err) AS err FROM file"}},
+    "by_hour": {"kind": "duckdb.query", "title": "By hour of day", "pos": [380, -160], "values": {
+      "sql": "SELECT hour(taken) AS hour, round(avg(down)) AS down_mbps, round(avg(ping), 1) AS ping_ms FROM a GROUP BY 1 ORDER BY 1"}},
+    "by_day": {"kind": "duckdb.query", "title": "By day", "pos": [380, 40], "values": {
+      "sql": "SELECT taken::DATE AS day, count(*) AS tests, count(err) AS failed, round(avg(down)) AS down_mbps, round(avg(up)) AS up_mbps FROM a GROUP BY 1 ORDER BY 1"}},
+    "verdict": {"kind": "duckdb.query", "title": "Verdict", "pos": [380, 240], "values": {
+      "sql": "WITH h AS (SELECT hour(taken) AS hour, avg(down) AS down FROM a GROUP BY 1) SELECT json_object('slowest_hour', arg_min(hour, down), 'slowest_mbps', round(min(down)), 'fastest_mbps', round(max(down)), 'slower_by', round(100 * (1 - min(down) / max(down))) || '%') AS verdict FROM h"}},
+    "day_rows": {"kind": "duckdb.table_rows", "title": "Rows for a spreadsheet", "pos": [760, 40]},
+    "back": {"kind": "duckdb.rows_table", "title": "And back", "pos": [1100, 40]},
+    "services": {"kind": "duckdb.read", "title": "Services", "pos": [0, 420], "values": {"path": "data/services.csv"}},
+    "who": {"kind": "duckdb.query", "title": "Who owns what", "pos": [380, 420], "values": {
+      "sql": "SELECT owner, string_agg(service, ', ' ORDER BY service) AS services, count(*) AS n FROM a GROUP BY 1 ORDER BY n DESC"}},
+    "csv": {"kind": "duckdb.table_csv", "title": "As CSV", "pos": [760, 420]},
+    "waited": {"kind": "duckdb.slow", "pos": [760, 560]}
+  },
+  "wires": [
+    {"from": {"node": "tests", "port": "table"}, "to": {"node": "by_hour", "port": "a"}},
+    {"from": {"node": "tests", "port": "table"}, "to": {"node": "by_day", "port": "a"}},
+    {"from": {"node": "tests", "port": "table"}, "to": {"node": "verdict", "port": "a"}},
+    {"from": {"node": "by_day", "port": "table"}, "to": {"node": "day_rows", "port": "table"}},
+    {"from": {"node": "day_rows", "port": "rows"}, "to": {"node": "back", "port": "rows"}},
+    {"from": {"node": "services", "port": "table"}, "to": {"node": "who", "port": "a"}},
+    {"from": {"node": "who", "port": "table"}, "to": {"node": "csv", "port": "table"}},
+    {"from": {"node": "who", "port": "table"}, "to": {"node": "waited", "port": "table"}}
+  ]
+}
