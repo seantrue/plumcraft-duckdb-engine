@@ -45,7 +45,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=2.0.0" },
-    { name = "plumcraft-engine", git = "https://github.com/seantrue/plumcraft?subdirectory=python&rev=3995cb7a8a0bbcb564ad3bd556dc6c0d2e500395" },
+    { name = "plumcraft-engine", git = "https://github.com/seantrue/plumcraft?subdirectory=python&rev=81dd28fccbd32fba5e51e67f98554f6d912a0f65" },
     { name = "pytz", specifier = ">=2026.6" },
 ]
 
@@ -234,7 +234,7 @@ wheels = [
 [[package]]
 name = "plumcraft-engine"
 version = "0.1.1"
-source = { git = "https://github.com/seantrue/plumcraft?subdirectory=python&rev=3995cb7a8a0bbcb564ad3bd556dc6c0d2e500395#3995cb7a8a0bbcb564ad3bd556dc6c0d2e500395" }
+source = { git = "https://github.com/seantrue/plumcraft?subdirectory=python&rev=81dd28fccbd32fba5e51e67f98554f6d912a0f65#81dd28fccbd32fba5e51e67f98554f6d912a0f65" }
 dependencies = [
     { name = "numpy" },
     { name = "pillow" },
