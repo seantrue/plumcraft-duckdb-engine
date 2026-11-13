@@ -10,6 +10,22 @@ The maintainer asked for the engine and chose the language. They wrote PlumCraft
 
 ## Contributions
 
+### 2026-11-13 — The SDK pin moved to PlumCraft 0.7.0: commonkit's hash switch (Claude Opus 5.5)
+
+**What the maintainer asked for:** the commonkit hash facade, layer 3 (plum `docs/plans/2026-11-12-commonkit-hash-facade.md` §3.8, the maintainer's D23 1a): move the PlumCraft dependents onto the release that hashes through commonkit's facade, so every handle is in one algorithm, chosen by commonkit's `HASH` (the store's `.policy.json`, then `COMMONKIT_HASH`, then `b3`).
+
+**What the AI did:**
+- `pyproject.toml` (2+2 lines): the SDK's `rev` moves from `81dd28f` to `34f6aea`, the commit tagged `plumcraft-v0.7.0`. The SDK's bound `plumcraft-engine>=0.1,<0.2` becomes `>=0.2,<0.3`. `uv.lock` (+99 −6): `plumcraft-engine` 0.2.0, `pyuncommonkit` 0.2.0 and `blake3` 1.0.11.
+- `tests/test_hash.py` (85 lines, the same in the three engines): under md5 and then b3, each in a child process with a fresh `COMMONKIT_STORE_ROOT`, `COMMONKIT_HASH` and `COMMONKIT_MARK_DIR`, the engine's hello reports exactly `[algo]`, commonkit's stderr line names the algorithm and its source, every handle the demo returns and an array published through the SDK's data plane are `<algo>:` with the algorithm's length, and no `shm_*` marker is left.
+
+The engine has no hashing of its own: every handle comes from the SDK.
+
+**Tests failed before the code:** at `81dd28f` the test fails in the child with `KeyError: 'algos'` (the old hello has no `data.algos`); checked on opencv-engine.
+
+**Checked** (through plum's `hf2_env.py`, a fresh store per run): `uv run pytest` under md5 and under b3 (31 passed each), and `scripts/conform` under both with PlumCraft 0.7.0's `plumcraft` binary on `PLUMCRAFT_BIN` (the Python half and 18 of 18 Rust-side cases); `ruff check` and `ruff format --check`. No marker but `.started` in any run.
+
+**Defects in AI-written code:** the first draft of the test published its array with no inline budget and no shared store, which the SDK refuses; caught by running it.
+
 ### 2026-11-04 — The SDK pin moved to PlumCraft's Windows support (Claude Opus 5.5)
 
 The maintainer installed this engine from PlumCraft's editor on Windows. It registered and appeared, then died on start: `module 'socket' has no attribute 'AF_UNIX'`. The SDK was pinned to PlumCraft `3995cb7`, from before PlumCraft ran on Windows, and Windows Python has no Unix sockets. The maintainer: "bump the engine pins".
