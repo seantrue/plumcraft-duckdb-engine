@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 license = "MIT OR Apache-2.0"
 dependencies = [
     "duckdb>=2.0.0",
-    "plumcraft-engine>=0.1,<0.2",
+    "plumcraft-engine>=0.2,<0.3",
     "pytz>=2026.6",
 ]
 
@@ -18,7 +18,7 @@ dev = ["pytest>=8", "ruff>=0.6"]
 
 # Where the PlumCraft SDK comes from; README.md says how to switch.
 [tool.uv.sources]
-plumcraft-engine = { git = "https://github.com/seantrue/plumcraft", subdirectory = "python", rev = "81dd28fccbd32fba5e51e67f98554f6d912a0f65" }
+plumcraft-engine = { git = "https://github.com/seantrue/plumcraft", subdirectory = "python", rev = "34f6aea64ecea71accb240cda972330f3b242d45" }
 
 [build-system]
 requires = ["hatchling"]
